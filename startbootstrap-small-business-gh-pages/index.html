@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>LOKASI PONDOK PESANTREN AL-MUNAWWIR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Mapbox -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet" />
+
+  <!-- Mapbox Directions -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" rel="stylesheet" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 32px;
+      background-color: #f8fafa;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      color: #4c8077;
+      font-weight: 600;
+      font-size: 16px;
+      text-decoration: none;
+    }
+
+    .nav-links a {
+      margin-left: 24px;
+      text-decoration: none;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .nav-links a:last-child {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .page-header {
+      background-image: url('assets/IMAGE/pesantren.png');
+      background-size: cover;
+      background-position: center;
+      padding: 80px 0;
+      color: rgb(245, 244, 243);
+      text-align: center;
+      font-size: 30px;
+      font-weight: bold;
+      margin: 0 50px 10px 50px;
+    }
+
+    .content {
+      display: flex;
+      margin: 0 50px;
+      gap: 10px;
+    }
+
+    .petunjuk-box {
+      background-color: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 320px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      font-size: 14px;
+    }
+
+    .petunjuk-box h3 {
+      color: #059669;
+      font-size: 16px;
+      border-bottom: 1px solid #f0f0f0;
+      padding-bottom: 8px;
+    }
+
+    .petunjuk-box ol {
+      padding-left: 20px;
+      color: #374151;
+    }
+
+    .petunjuk-box li {
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .lokasi-btn {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    #map {
+      flex-grow: 1;
+      height: 500px;
+      border-radius: 10px;
+    }
+
+    .legend {
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      font-size: 14px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      margin-right: 6px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 12px;
+      background-color: #f1f1f1;
+      font-size: 13px;
+      border-top: 1px solid #ccc;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="#" class="logo">Pondok Pesantren Al-Munawwir</a>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+      <a href="#">Blog</a>
+    </div>
+  </nav>
+
+  <div class="page-header">LOKASI PONDOK PESANTREN AL-MUNNAWIR</div>
+
+  <div class="content">
+    <div class="petunjuk-box">
+      <h3>Petunjuk</h3>
+      <ol>
+        <li>Gunakan tombol zoom ➕, ➖, dan reset ⬆️ untuk mengatur peta.</li>
+        <li>Titik biru dengan huruf "A" adalah lokasi Anda.</li>
+        <li>Klik tombol untuk melihat lokasi Pondok Pesantren.</li>
+        <li>Klik salah satu bangunan untuk menavigasi ke sana.</li>
+        <li>Rute akan muncul sebagai garis biru di peta.</li>
+      </ol>
+      
+      <button class="lokasi-btn" onclick="flyToPesantren()">Lokasi Pesantren</button>
+    </div>
+
+    <div id="map"></div>
+  </div>
+
+  <footer>
+    &copy; Copyright | WebGIS Pondok Pesantren Al-Munawwir 2025
+  </footer>
+
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZGlhbmRhbWEiLCJhIjoiY205bDY0M24yMDFrbDJsczdmbmV1dW1tciJ9.krqM8UOqxAKm-korQeJn3g';
+
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [110.3589, -7.8052],
+      zoom: 13
+    });
+
+    // Tambahkan navigasi zoom dan reset bearing
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+    const directions = new MapboxDirections({
+      accessToken: mapboxgl.accessToken,
+      unit: 'metric',
+      profile: 'mapbox/driving',
+      interactive: true,
+      alternatives: true,
+      controls: { instructions: false }
+    });
+
+    map.addControl(directions, 'top-left');
+
+    navigator.geolocation.getCurrentPosition(position => {
+      const userLocation = [position.coords.longitude, position.coords.latitude];
+      directions.setOrigin(userLocation);
+    });
+
+    function flyToPesantren() {
+      map.flyTo({
+        center: [110.3589, -7.8052],
+        zoom: 15
+      });
+    }
+
+    const geojson = {
+      type: 'FeatureCollection',
+      features: [
+        { type: 'Feature', properties: { title: 'Asrama Putra', type: 'putra' }, geometry: { type: 'Point', coordinates: [110.3589, -7.8055] } },
+        { type: 'Feature', properties: { title: 'Asrama Putri', type: 'putri' }, geometry: { type: 'Point', coordinates: [110.3592, -7.8053] } },
+        { type: 'Feature', properties: { title: 'Bangunan Umum', type: 'umum' }, geometry: { type: 'Point', coordinates: [110.3588, -7.8050] } }
+      ]
+    };
+
+    map.on('load', () => {
+      for (const feature of geojson.features) {
+        const el = document.createElement('div');
+        el.className = 'marker';
+        el.style.width = '16px';
+        el.style.height = '16px';
+        el.style.borderRadius = '50%';
+        el.style.backgroundColor =
+          feature.properties.type === 'putra' ? '#003f5c' :
+          feature.properties.type === 'putri' ? '#bc5090' : '#ffa600';
+
+        new mapboxgl.Marker(el)
+          .setLngLat(feature.geometry.coordinates)
+          .setPopup(new mapboxgl.Popup().setText(feature.properties.title))
+          .addTo(map)
+          .getElement()
+          .addEventListener('click', () => {
+            directions.setDestination(feature.geometry.coordinates);
+          });
+      }
+
+      const legend = document.createElement('div');
+      legend.className = 'legend';
+      legend.innerHTML = `
+        <strong>Legenda</strong>
+        <div class="legend-item"><div class="legend-color" style="background:#003f5c"></div> Asrama Putra</div>
+        <div class="legend-item"><div class="legend-color" style="background:#bc5090"></div> Asrama Putri</div>
+        <div class="legend-item"><div class="legend-color" style="background:#ffa600"></div> Bangunan Umum</div>
+      `;
+      map.getContainer().appendChild(legend);
+    });
+  </script>
+</body>
+</html>
